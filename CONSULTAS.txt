@@ -1,0 +1,66 @@
+CONSULTAS SQL
+
+1- Actualizar el precio de todos los productos , -20% :
+	update tbl_plantas set precio= precio*0.8
+
+2- Listar todos los productos con stock critico (Menor o igual a 5 unidades)
+	select * from tbl_plantas where stock_total <=5
+
+3- simular la compra de al menos 3 productos , calcular el subtotal , agregar el iva y mostrar el total de la compra
+	
+select 
+	distinct v.id_ventas as "codigo de venta", 
+	cl.nombres || ' ' || cl.apellidop || ' ' ||  cl.apellidom as cliente, 
+	(select sum(cantidad*precio_unitario) from tbl_detalleventas where id_ventas =v.id_ventas) as "Subtotal",
+	(select sum(cantidad*precio_unitario)*0.19 from tbl_detalleventas where id_ventas =v.id_ventas) as "iva",
+	(select sum(cantidad*precio_unitario)*1.19 from tbl_detalleventas where id_ventas =v.id_ventas) as "total"
+from 
+	tbl_ventas v,
+	tbl_clientes cl,
+	tbl_detalleventas dv
+where 
+	cl.id_clientes = v.id_clientes
+	and dv.id_ventas = v.id_ventas
+
+
+
+
+4- Mostrar el total de ventas del mes de diciembre del 2022
+
+
+select 
+	distinct v.id_ventas as "codigo de venta", 
+	cl.nombres || ' ' || cl.apellidop || ' ' ||  cl.apellidom as cliente, 
+	(select sum(cantidad*precio_unitario) from tbl_detalleventas where id_ventas =v.id_ventas) as "Subtotal",
+	(select sum(cantidad*precio_unitario)*0.19 from tbl_detalleventas where id_ventas =v.id_ventas) as "iva",
+	(select sum(cantidad*precio_unitario)*1.19 from tbl_detalleventas where id_ventas =v.id_ventas) as "total",
+	v.fecha 
+from 
+	tbl_ventas v,
+	tbl_clientes cl,
+	tbl_detalleventas dv
+where 
+	cl.id_clientes = v.id_clientes
+	and dv.id_ventas = v.id_ventas
+	and v.fecha between '2022-12-01' and '2022-12-31'
+
+
+
+5- Listar el comportamiento de compra del usuario que mas compras realizo durante el 2022
+
+select 
+	cl.id_clientes as "Codigo Cliente",
+	cl.nombres || ' ' || cl.apellidop || ' ' ||  cl.apellidom as cliente,
+	sum(dv.cantidad*dv.precio_unitario) as "Subtotal"	
+from 
+	tbl_clientes cl,
+	tbl_detalleventas dv,
+	tbl_ventas v
+where
+	cl.id_clientes = v.id_clientes
+	and v.id_ventas = dv.id_ventas
+	and v.fecha between '2022-01-01' and '2022-12-31'
+group by cl.id_clientes
+order by "Subtotal" desc
+limit 1
+	
